@@ -5,7 +5,6 @@ import com.tul.cart.domain.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,5 +29,10 @@ public class ProductService implements IProductService {
     @Override
     public Product get(final UUID id) {
         return productDao.getOne(id);
+    }
+
+    @Override
+    public void delete(UUID id) {
+        productDao.deleteById(id);
     }
 }

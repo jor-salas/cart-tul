@@ -1,26 +1,83 @@
 package com.tul.cart.controller;
 
+import com.tul.cart.constants.Status;
+import com.tul.cart.domain.Cart;
+import com.tul.cart.domain.CartProduct;
+import com.tul.cart.domain.Product;
+import com.tul.cart.dto.CartRequest;
+import com.tul.cart.dto.CartResponse;
+import com.tul.cart.dto.ProductRequest;
+import com.tul.cart.dto.ProductResponse;
+import com.tul.cart.service.ICartService;
 import com.tul.cart.service.IProductService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.UUID;
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
 
-    private final IProductService cartService;
+    private final ICartService cartService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public CartController(final IProductService cartService, final ModelMapper modelMapper) {
+    public CartController(final ICartService cartService, final ModelMapper modelMapper) {
         this.cartService = cartService;
         this.modelMapper = modelMapper;
     }
 
-    @RequestMapping
-    public String home(){
-        return "Home";
+    @ApiOperation(
+            value = "Create cart",
+            response = ProductResponse.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = SC_OK, message = "Success"),
+            @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
+    })
+    @PostMapping("create")
+    public ResponseEntity create(@Valid @RequestBody CartRequest cartRequest) {
+        CartProduct cartProduct = modelMapper.map(cartRequest, CartProduct.class);
+        CartProduct cartProductStored = cartService.save(cartProduct);
+        Cart cart = Cart.builder().cartProducts(Collections.singletonList(cartProductStored)).status(Status.PENDING).build();
+        Cart cartStored = cartService.save(cart);
+        CartResponse cartResponse = modelMapper.map(cartStored, CartResponse.class);
+        return ResponseEntity.ok(cartResponse);
+    }
+
+    @ApiOperation(
+            value = "add product to cart",
+            response = ProductResponse.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = SC_OK, message = "Success"),
+            @ApiResponse(code = SC_BAD_REQUEST, mevalid Request")
+                    })
+            @PostMapping("add")
+            public ResponseEntity add(@Valid @RequestBody CartRequest cartRequest, @RequestParam UUID id) {
+            CartProduct cartProduct = modelMapper.map(cartRequest, CartProduct.class);
+    CartProduct cartProductStored = cartService.save(carssage = "IntProduct);
+        Cart cart = cartService.getById(id);
+        cart.getCartProducts().add(cartProductStored);
+        Cart cartStored = cartService.save(cart);
+        CartResponse cartResponse = modelMapper.map(cartStored, CartResponse.class);
+        return ResponseEntity.ok(cartResponse);
     }
 }

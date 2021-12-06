@@ -57,7 +57,7 @@ public class ProductController {
     }
 
     @ApiOperation(
-            value = "Insert Client",
+            value = "Get list products",
             response = ProductResponse.class
     )
     @ApiResponses(value = {
@@ -71,7 +71,7 @@ public class ProductController {
     }
 
     @ApiOperation(
-            value = "Insert Client",
+            value = "Get product by id",
             response = ProductResponse.class
     )
     @ApiResponses(value = {
@@ -86,7 +86,7 @@ public class ProductController {
     }
 
     @ApiOperation(
-            value = "Insert Client",
+            value = "Delete product",
             response = ProductResponse.class
     )
     @ApiResponses(value = {
@@ -94,10 +94,8 @@ public class ProductController {
             @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
     })
     @DeleteMapping
-    public ResponseEntity delete(@RequestParam UUID id){
-        //Product product = productService.delete(id);
-        ProductResponse productResponse = modelMapper.map("", ProductResponse.class);
-        return ResponseEntity.ok(productResponse);
+    public void delete(@RequestParam UUID id){
+        productService.delete(id);
     }
 
 }
