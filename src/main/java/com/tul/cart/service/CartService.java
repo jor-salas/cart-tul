@@ -3,7 +3,6 @@ package com.tul.cart.service;
 import com.tul.cart.constants.Status;
 import com.tul.cart.dao.ICartDao;
 import com.tul.cart.dao.IProductCartDao;
-import com.tul.cart.dao.IProductDao;
 import com.tul.cart.domain.Cart;
 import com.tul.cart.domain.CartProduct;
 import com.tul.cart.domain.Product;
@@ -29,7 +28,12 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public Cart createCart(final CartProduct cartProduct) {
+    public Optional<Cart> createCart(final CartProduct cartProduct) {
+        Optional<Product> product = productService.get(cartProduct.getProductId());
+
+        if(!product.isPresent())
+            return Optional.empty();
+
         CartProduct cartProductStored = productCartDao.save(cartProduct);
         Cart cart = Cart.builder()
                 .cartProducts(Collections.singletonList(cartProductStored))
@@ -37,38 +41,59 @@ public class CartService implements ICartService {
                 .status(Status.PENDING)
                 .build();
 
-        return this.save(cart);
+        return Optional.of(this.save(cart));
     }
 
     @Override
-    public Cart addToCart(UUID id, CartProduct cartProduct) {
+    public Optional<Cart> addToCart(UUID id, CartProduct cartProduct) {
+        Optional<Product> product = productService.get(cartProduct.getProductId());
+
+        if(!product.isPresent())
+            return Optional.empty();
+
         CartProduct cartProductStored = this.save(cartProduct);
-        Cart cart = this.getById(id);
-        cart.getCartProducts().add(cartProductStored);
-        cart.setTotalAmount(calculateTotalAmount(cart.getCartProducts()));
-        return this.save(cart);
+        Optional<Cart> cart = this.getById(id);
+
+        if(!cart.isPresent())
+            return Optional.empty();
+
+        cart.get().getCartProducts().add(cartProductStored);
+        cart.get().setTotalAmount(calculateTotalAmount(cart.get().getCartProducts()));
+        return Optional.of(this.save(cart.get()));
     }
 
     @Override
-    public Cart deleteFromCart(UUID id, UUID cartProductId) {
-        Cart cart = cartDao.getOne(id);
-        List<CartProduct> cartProductList = cart.getCartProducts();
-        cartProductList.removeIf(i -> i.getId().equals(cartProductId));
-        cart.setTotalAmount(calculateTotalAmount(cartProductList));
-        return cartDao.save(cart);
+    public Optional<Cart> deleteFromCart(UUID id, UUID cartProductId) {
+        Optional<Cart> cart = cartDao.findById(id);
+
+        if(!cart.isPresent())
+            return Optional.empty();
+
+        List<CartProduct> cartProductList = cart.get().getCartProducts();
+        boolean removed = cartProductList.removeIf(i -> i.getId().equals(cartProductId));
+
+        if (!removed)
+            return Optional.empty();
+
+        cart.get().setTotalAmount(calculateTotalAmount(cartProductList));
+        return Optional.of(cartDao.save(cart.get()));
     }
 
     @Override
-    public Cart checkout(UUID id) {
-        Cart cart = cartDao.getOne(id);
-        cart.setStatus(Status.COMPLETE);
-        List<CartProduct> cartProductList = cart.getCartProducts();
-        cart.setTotalAmount(calculateTotalAmount(cartProductList));
-        return cartDao.save(cart);
+    public Optional<Cart> checkout(UUID id) {
+        Optional<Cart> cart = cartDao.findById(id);
+
+        if(!cart.isPresent())
+            return Optional.empty();
+
+        cart.get().setStatus(Status.COMPLETE);
+        List<CartProduct> cartProductList = cart.get().getCartProducts();
+        cart.get().setTotalAmount(calculateTotalAmount(cartProductList));
+        return Optional.of(cartDao.save(cart.get()));
     }
 
-    public Cart getById(final UUID id) {
-        return cartDao.getOne(id);
+    public Optional<Cart> getById(final UUID id) {
+        return cartDao.findById(id);
     }
 
     public Cart save(final Cart cart) {

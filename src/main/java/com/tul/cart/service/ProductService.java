@@ -29,7 +29,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Optional<Product> get(final UUID id) throws EntityNotFoundException{
+    public Optional<Product> get(final UUID id) {
         return productDao.findById(id);
     }
 
