@@ -118,7 +118,7 @@ public class ProductController {
         List<Product> products = productService.delete(id);
 
         if(products.isEmpty())
-            return ResponseEntity.status(HttpStatus.OK).body("No products to show");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No products to show");
 
         return ResponseEntity.ok(products);
     }

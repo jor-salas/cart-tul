@@ -31,6 +31,7 @@ public class ProductRequest {
     @NotBlank
     private String description;
     @NotNull
+    @Min(value = 1, message = "invalid price")
     private Double price;
     @NotNull
     private boolean discount;
