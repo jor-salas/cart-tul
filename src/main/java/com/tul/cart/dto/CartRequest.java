@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
@@ -22,5 +23,6 @@ public class CartRequest {
     @NotNull
     private UUID productId;
     @NotNull
+    @Min(value = 1, message = "invalid quantity")
     private int quantity;
 }

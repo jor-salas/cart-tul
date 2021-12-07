@@ -53,7 +53,7 @@ public class CartController {
             @ApiResponse(code = SC_NOT_FOUND, message = "Inexistent product")
     })
     @PostMapping("createCart")
-    public ResponseEntity create(@Valid @RequestBody CartRequest cartRequest) {
+    public ResponseEntity create(@Valid @RequestBody final CartRequest cartRequest) {
         CartProduct cartProduct = modelMapper.map(cartRequest, CartProduct.class);
         Optional<Cart> cart = cartService.createCart(cartProduct);
 
@@ -92,10 +92,11 @@ public class CartController {
     )
     @ApiResponses(value = {
             @ApiResponse(code = SC_OK, message = "Success"),
-            @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
+            @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request"),
+            @ApiResponse(code = SC_NOT_FOUND, message = "Inexistent cart or product")
     })
     @PostMapping("addProduct")
-    public ResponseEntity add(@Valid @RequestBody CartRequest cartRequest, @RequestParam UUID id) {
+    public ResponseEntity add(@Valid @RequestBody final CartRequest cartRequest, @RequestParam final UUID id) {
         CartProduct cartProduct = modelMapper.map(cartRequest, CartProduct.class);
         Optional<Cart> cart = cartService.addToCart(id, cartProduct);
 
@@ -115,7 +116,7 @@ public class CartController {
             @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
     })
     @DeleteMapping("deleteCartProduct")
-    public ResponseEntity delete(@RequestParam UUID cartId, @RequestParam UUID productId) {
+    public ResponseEntity delete(@RequestParam final UUID cartId, @RequestParam final UUID productId) {
         Optional<Cart> cart = cartService.deleteFromCart(cartId, productId);
 
         if(!cart.isPresent())
@@ -135,7 +136,7 @@ public class CartController {
             @ApiResponse(code = SC_NOT_FOUND, message = "Inexistent cart")
     })
     @PostMapping("checkout")
-    public ResponseEntity checkout(@RequestParam UUID cartId) {
+    public ResponseEntity checkout(@RequestParam final UUID cartId) {
         Optional<Cart> cart = cartService.checkout(cartId);
 
         if(!cart.isPresent())
