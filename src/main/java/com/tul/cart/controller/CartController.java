@@ -86,14 +86,14 @@ public class CartController {
 
     @ApiOperation(
             value = "checkout cart",
-            response = ProductResponse.class
+            response = CheckoutResponse.class
     )
     @ApiResponses(value = {
             @ApiResponse(code = SC_OK, message = "Success"),
             @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
     })
     @PostMapping("checkout")
-    public ResponseEntity checkout(@RequestParam UUID cartId) {
+    public ResponseEntity<CheckoutResponse> checkout(@RequestParam UUID cartId) {
         Cart cart = cartService.checkout(cartId);
         CheckoutResponse checkoutResponse = modelMapper.map(cart, CheckoutResponse.class);
         return ResponseEntity.ok(checkoutResponse);
