@@ -5,6 +5,7 @@ import com.tul.cart.domain.Product;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,8 +35,14 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void delete(UUID id) {
+    public List<Product> delete(UUID id) {
+        Optional<Product> product = this.get(id);
+
+        if(!product.isPresent())
+            return new ArrayList<>();
+
         productDao.deleteById(id);
+        return this.getproducts();
     }
 
     @Override

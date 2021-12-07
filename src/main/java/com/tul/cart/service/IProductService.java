@@ -10,6 +10,6 @@ public interface IProductService {
     Product save(Product product);
     List<Product> getproducts();
     Optional<Product> get(UUID id);
-    void delete(UUID id);
+    List<Product> delete(UUID id);
     Optional<Product> modify(UUID id, Product product);
 }

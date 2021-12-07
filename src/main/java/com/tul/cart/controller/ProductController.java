@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,11 +66,16 @@ public class ProductController {
     )
     @ApiResponses(value = {
             @ApiResponse(code = SC_OK, message = "Success"),
-            @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
+            @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request"),
+            @ApiResponse(code = SC_NO_CONTENT, message = "No products to show")
     })
     @GetMapping("list")
-    public ResponseEntity<List<Product>> getProducts(){
+    public ResponseEntity getProducts(){
         List<Product> products = productService.getproducts();
+
+        if(products.isEmpty())
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No products to show");
+
         return ResponseEntity.ok(products);
     }
 
@@ -83,11 +89,11 @@ public class ProductController {
             @ApiResponse(code = SC_NO_CONTENT, message = "Producto inexistente")
     })
     @GetMapping
-    public ResponseEntity<ProductResponse> get(@RequestParam UUID id){
+    public ResponseEntity get(@RequestParam UUID id){
         Optional<Product> product = productService.get(id);
 
         if(!product.isPresent())
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inexistent product");
 
         ProductResponse productResponse = modelMapper.map(product.get(), ProductResponse.class);
         return ResponseEntity.ok(productResponse);
@@ -102,8 +108,19 @@ public class ProductController {
             @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
     })
     @DeleteMapping
-    public void delete(@RequestParam UUID id){
-        productService.delete(id);
+    public ResponseEntity delete(@RequestParam UUID id){
+        Optional<Product> product = productService.get(id);
+
+        if(!product.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inexistent product");
+        }
+
+        List<Product> products = productService.delete(id);
+
+        if(products.isEmpty())
+            return ResponseEntity.status(HttpStatus.OK).body("No products to show");
+
+        return ResponseEntity.ok(products);
     }
 
     @ApiOperation(
