@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.DoubleAccumulator;
 public class CartService implements ICartService {
 
     private IProductCartDao productCartDao;
-    private IProductDao productDao;
     private ICartDao cartDao;
     private IProductService productService;
 
@@ -54,6 +53,15 @@ public class CartService implements ICartService {
         Cart cart = cartDao.getOne(id);
         List<CartProduct> cartProductList = cart.getCartProducts();
         cartProductList.removeIf(i -> i.getId().equals(cartProductId));
+        cart.setTotalAmount(calculateTotalAmount(cartProductList));
+        return cartDao.save(cart);
+    }
+
+    @Override
+    public Cart checkout(UUID id) {
+        Cart cart = cartDao.getOne(id);
+        cart.setStatus(Status.COMPLETE);
+        List<CartProduct> cartProductList = cart.getCartProducts();
         cart.setTotalAmount(calculateTotalAmount(cartProductList));
         return cartDao.save(cart);
     }

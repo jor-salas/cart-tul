@@ -9,4 +9,5 @@ public interface ICartService {
     Cart createCart(CartProduct cartProduct);
     Cart addToCart(UUID id, CartProduct cartProduct);
     Cart deleteFromCart(UUID id, UUID cartProduct);
+    Cart checkout(UUID id);
 }

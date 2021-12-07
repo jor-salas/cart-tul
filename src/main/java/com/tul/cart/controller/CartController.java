@@ -4,6 +4,7 @@ import com.tul.cart.domain.Cart;
 import com.tul.cart.domain.CartProduct;
 import com.tul.cart.dto.CartRequest;
 import com.tul.cart.dto.CartResponse;
+import com.tul.cart.dto.CheckoutResponse;
 import com.tul.cart.dto.ProductResponse;
 import com.tul.cart.service.ICartService;
 import io.swagger.annotations.ApiOperation;
@@ -81,5 +82,20 @@ public class CartController {
     @DeleteMapping("deleteCartProduct")
     public Cart delete(@RequestParam UUID cartId, @RequestParam UUID productId) {
         return cartService.deleteFromCart(cartId, productId);
+    }
+
+    @ApiOperation(
+            value = "checkout cart",
+            response = ProductResponse.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = SC_OK, message = "Success"),
+            @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
+    })
+    @PostMapping("checkout")
+    public ResponseEntity checkout(@RequestParam UUID cartId) {
+        Cart cart = cartService.checkout(cartId);
+        CheckoutResponse checkoutResponse = modelMapper.map(cart, CheckoutResponse.class);
+        return ResponseEntity.ok(checkoutResponse);
     }
 }
