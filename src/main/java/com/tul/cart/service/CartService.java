@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.DoubleAccumulator;
 
@@ -79,11 +80,15 @@ public class CartService implements ICartService {
     }
 
     private Double calculateTotalAmount(CartProduct cartProduct){
-        Product product = productService.get(cartProduct.getProductId());
-        Double price = product.getPrice();
-        boolean discount = product.isDiscount();
+        Optional<Product> product = productService.get(cartProduct.getProductId());
 
-        return discount ? price/2*cartProduct.getQuantity() : price*cartProduct.getQuantity();
+        if(product.isPresent()){
+            Double price = product.get().getPrice();
+            boolean discount = product.get().isDiscount();
+            return discount ? price/2*cartProduct.getQuantity() : price*cartProduct.getQuantity();
+        }
+
+        return 0.0;
     }
 
     private Double calculateTotalAmount(List<CartProduct> cartProducts){

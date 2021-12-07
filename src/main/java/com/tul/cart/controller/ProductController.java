@@ -13,18 +13,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 @RestController
@@ -41,7 +44,7 @@ public class ProductController {
     }
 
     @ApiOperation(
-            value = "Insert Client",
+            value = "Insert Product",
             response = ProductResponse.class
     )
     @ApiResponses(value = {
@@ -49,7 +52,7 @@ public class ProductController {
             @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
     })
     @PostMapping("create")
-    public ResponseEntity create(@Valid @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest productRequest) {
         Product product = modelMapper.map(productRequest, Product.class);
         Product productStored = productService.save(product);
         ProductResponse productResponse = modelMapper.map(productStored, ProductResponse.class);
@@ -76,12 +79,17 @@ public class ProductController {
     )
     @ApiResponses(value = {
             @ApiResponse(code = SC_OK, message = "Success"),
-            @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request")
+            @ApiResponse(code = SC_BAD_REQUEST, message = "Invalid Request"),
+            @ApiResponse(code = SC_NO_CONTENT, message = "Producto inexistente")
     })
     @GetMapping
-    public ResponseEntity get(@RequestParam UUID id){
-        Product product = productService.get(id);
-        ProductResponse productResponse = modelMapper.map(product, ProductResponse.class);
+    public ResponseEntity<ProductResponse> get(@RequestParam UUID id){
+        Optional<Product> product = productService.get(id);
+
+        if(!product.isPresent())
+            return ResponseEntity.noContent().build();
+
+        ProductResponse productResponse = modelMapper.map(product.get(), ProductResponse.class);
         return ResponseEntity.ok(productResponse);
     }
 
@@ -98,4 +106,23 @@ public class ProductController {
         productService.delete(id);
     }
 
+    @ApiOperation(
+            value = "Modify product",
+            response = ProductResponse.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = SC_OK, message = "Success"),
+            @ApiResponse(code = SC_NO_CONTENT, message = "Producto inexistente")
+    })
+    @PutMapping("modify")
+    public ResponseEntity<ProductResponse> put(@Valid @RequestBody ProductRequest productRequest, @RequestParam UUID id){
+        Product product = modelMapper.map(productRequest, Product.class);
+        Optional<Product> productStored = productService.modify(id,product);
+
+        if(!productStored.isPresent())
+            return ResponseEntity.noContent().build();
+
+        ProductResponse response = modelMapper.map(productStored.get(), ProductResponse.class);
+        return ResponseEntity.ok(response);
+    }
 }
