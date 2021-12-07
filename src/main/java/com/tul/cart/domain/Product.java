@@ -21,7 +21,7 @@ public class Product {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private UUID id;
+    private UUID productId;
     @Column
     private String name;
     @Column

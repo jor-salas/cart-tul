@@ -1,11 +1,8 @@
 package com.tul.cart.dto;
 
-
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.tul.cart.domain.Product;
 import com.tul.cart.validations.ValidCartRequest;
-import com.tul.cart.validations.ValidProductRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -22,8 +20,7 @@ import javax.validation.constraints.NotNull;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CartRequest {
     @NotNull
-    @NotBlank
-    private String productId;
+    private UUID productId;
     @NotNull
     private int quantity;
 }

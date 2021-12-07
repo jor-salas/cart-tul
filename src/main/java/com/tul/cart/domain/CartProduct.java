@@ -8,11 +8,8 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import java.util.UUID;
 
 @Entity
@@ -25,8 +22,8 @@ public class CartProduct {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private UUID id;
-    @JoinColumn(name = "id")
-    private String productId;
+    @Column
+    private UUID productId;
     @Column
     private int quantity;
 }
