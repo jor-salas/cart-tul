@@ -34,6 +34,9 @@ public class CartService implements ICartService {
         if(!product.isPresent())
             return Optional.empty();
 
+        if(!validateQuantity(product.get(), cartProduct))
+            return Optional.empty();
+
         CartProduct cartProductStored = productCartDao.save(cartProduct);
         Cart cart = Cart.builder()
                 .cartProducts(Collections.singletonList(cartProductStored))
@@ -49,6 +52,9 @@ public class CartService implements ICartService {
         Optional<Product> product = productService.get(cartProduct.getProductId());
 
         if(!product.isPresent())
+            return Optional.empty();
+
+        if(!validateQuantity(product.get(), cartProduct))
             return Optional.empty();
 
         CartProduct cartProductStored = this.save(cartProduct);
@@ -89,6 +95,7 @@ public class CartService implements ICartService {
         cart.get().setStatus(Status.COMPLETE);
         List<CartProduct> cartProductList = cart.get().getCartProducts();
         cart.get().setTotalAmount(calculateTotalAmount(cartProductList));
+        stockUpdate(cartProductList);
         return Optional.of(cartDao.save(cart.get()));
     }
 
@@ -125,5 +132,15 @@ public class CartService implements ICartService {
         }
 
         return acumulator.doubleValue();
+    }
+
+    private boolean validateQuantity(Product product, CartProduct cartProduct){
+        return product.getSku() >= cartProduct.getQuantity();
+    }
+
+    private void stockUpdate(List<CartProduct> cartProducts){
+        for(CartProduct product : cartProducts){
+            productService.updateStock(product.getProductId(),product.getQuantity());
+        }
     }
 }

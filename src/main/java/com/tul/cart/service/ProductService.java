@@ -59,4 +59,13 @@ public class ProductService implements IProductService {
 
         return Optional.empty();
     }
+
+    @Override
+    public void updateStock(UUID id, int quantity){
+        Optional<Product> product = this.get(id);
+        int sku = product.get().getSku();
+        int finalStock = sku-quantity;
+        product.get().setSku(finalStock);
+        this.save(product.get());
+    }
 }

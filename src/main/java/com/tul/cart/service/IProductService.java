@@ -12,4 +12,5 @@ public interface IProductService {
     Optional<Product> get(UUID id);
     List<Product> delete(UUID id);
     Optional<Product> modify(UUID id, Product product);
+    void updateStock(UUID id, int quantity);
 }

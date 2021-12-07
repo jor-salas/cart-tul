@@ -58,7 +58,7 @@ public class CartController {
         Optional<Cart> cart = cartService.createCart(cartProduct);
 
         if(!cart.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inexistent product");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inexistent product / insuficient stock");
         }
 
         CartResponse cartResponse = modelMapper.map(cart.get(), CartResponse.class);
@@ -101,10 +101,10 @@ public class CartController {
         Optional<Cart> cart = cartService.addToCart(id, cartProduct);
 
         if(!cart.isPresent())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inexistent cart or product");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inexistent cart or product / insuficient stock");
 
-        CartResponse cartResponse = modelMapper.map(cart, CartResponse.class);
-        return ResponseEntity.ok(cartResponse);
+        CartResponse cartResponse = modelMapper.map(cart.get(), CartResponse.class);
+        return ResponseEntity.ok(cart);
     }
 
     @ApiOperation(
@@ -142,7 +142,7 @@ public class CartController {
         if(!cart.isPresent())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inexistent cart");
 
-        CheckoutResponse checkoutResponse = modelMapper.map(cart, CheckoutResponse.class);
+        CheckoutResponse checkoutResponse = modelMapper.map(cart.get(), CheckoutResponse.class);
         return ResponseEntity.ok(checkoutResponse);
     }
 }
